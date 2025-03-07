@@ -54,7 +54,37 @@ public class Game
 
         // Exercício 1:
         // Distribuir 20 cartas para cada Jogador, sendo 10 de ataque e 10 de defesa.
-        // usuario.IniciarDeck(cartasDoJogador);
+        // usuario.IniciarDeck(cartasDoJogador)
+        // Embaralha as cartas
+        Random random = new Random();
+        List<Carta> cartasEmbaralhadas = cartas.OrderBy(c => random.Next()).ToList();
+
+        // Separa as cartas de ataque e defesa manualmente pq o OfType não funcionou
+        List<Carta> cartasDeAtaque = new List<Carta>();
+        List<Carta> cartasDeDefesa = new List<Carta>();
+
+        foreach (var carta in cartasEmbaralhadas)
+        {
+            if (carta is CartaAtaque)
+            {
+                if (cartasDeAtaque.Count < 10)
+                    cartasDeAtaque.Add(carta);
+            }
+            else if (carta is CartaDefesa)
+            {
+                if (cartasDeDefesa.Count < 10)
+                    cartasDeDefesa.Add(carta);
+            }
+
+            // Quebra o loop se tiver 10 cartas dos 2 tipos
+            if (cartasDeAtaque.Count >= 10 && cartasDeDefesa.Count >= 10)
+                break;
+        }
+
+        // Inicia os decks
+        usuario.IniciarDeck(cartasDeAtaque.Concat(cartasDeDefesa).ToList());
+        computador.IniciarDeck(cartasDeAtaque.Concat(cartasDeDefesa).ToList());
+
 
         Console.WriteLine("Início do Jogo:");
         Console.WriteLine($"Jogador ({usuario.Nome}) - Vida: {usuario.Vidas} | Energia: {usuario.Energia}");
@@ -66,26 +96,51 @@ public class Game
         // Exercício 2:
         // Enquanto nenhum dos jogadores tiver 0 de vida, o jogo continua.
 
-        // Exercício 3:
-        // Deve-se exibir as cartas do jogador e pedir para ele escolher uma carta.
-        // O jogador deve escolher uma carta do deck para usar.
+       while (usuario.Vidas > 0 && computador.Vidas > 0)
+    {
+        // Exercício 3: Exibir as cartas do jogador e pedir para ele escolher uma carta.
+        Console.WriteLine($"\nCartas de {usuario.Nome}:");
+        for (int i = 0; i < usuario.Deck.Count; i++)
+        {
+            Console.WriteLine($"{i}: {usuario.Deck[i].Nome} - Energia: {usuario.Deck[i].Energia}");
+        }
+        
+        int escolha;
+        while (!int.TryParse(Console.ReadLine(), out escolha) || escolha < 0 || escolha >= usuario.Deck.Count)
+        {
+            Console.WriteLine("Escolha uma carta válida, digitando o número correspondente:");
+        }
 
-        // Exercício 4:
-        // O computador deve escolher uma carta aleatória do deck para usar.
+        Carta cartaEscolhida = usuario.SelecionarCarta(escolha);
+        cartaEscolhida.Usar(usuario, computador);
+        Console.WriteLine($"{usuario.Nome} usou {cartaEscolhida.Nome}!");
 
-        // Exercício 5:
-        // As cartas devem ser usadas e o resultado deve ser exibido.
-        // Exemplo: Herói usou Poção de Vida, recuperando 4 de vida!  
+        // Exercício 6: Exibir a quantidade de vidas e energia de cada jogador.
+        Console.WriteLine($"{usuario.Nome} - Vida: {usuario.Vidas}, Energia: {usuario.Energia}");
+        Console.WriteLine($"{computador.Nome} - Vida: {computador.Vidas}, Energia: {computador.Energia}");
 
-        // Exercício 6:
-        // Exibir a quantidade de vidas e energia de cada jogador.
-        // Exemplo: Jogador (Herói) - Vida: 26 | Energia: 8
+        // Verificar se o computador ainda está vivo
+        if (computador.Vidas <= 0) break;
 
-        // Exercício 7:
-        // Restaurar os Pontos de Energia e continuar o jogo.
+        // Exercício 4: O computador escolhe uma carta aleatória do deck para usar.
+        int indiceCarta = new Random().Next(computador.Deck.Count);
+        Carta cartaComputador = computador.SelecionarCarta(indiceCarta);
+        cartaComputador.Usar(computador, usuario);
+        Console.WriteLine($"{computador.Nome} usou {cartaComputador.Nome}!");
 
-        // Exercício 8:
-        // Mostrar o vencedor e encerrar o jogo.
-        // Caso, as cartas acabem, embaralhar o deck e continuar o jogo até que haja a vitória.
+        // Exercício 6: Exibir a quantidade de vidas e energia de cada jogador novamente.
+        Console.WriteLine($"{usuario.Nome} - Vida: {usuario.Vidas}, Energia: {usuario.Energia}");
+        Console.WriteLine($"{computador.Nome} - Vida: {computador.Vidas}, Energia: {computador.Energia}");
+
+        // Exercício 7: Restaurar os Pontos de Energia.
+        usuario.RestaurarEnergia();
+        computador.RestaurarEnergia();
+    }
+
+    // Exercício 8: Mostrar o vencedor e encerrar o jogo.
+    if (usuario.Vidas <= 0)
+        Console.WriteLine($"{computador.Nome} venceu!");
+    else
+        Console.WriteLine($"{usuario.Nome} venceu!");
     }
 }

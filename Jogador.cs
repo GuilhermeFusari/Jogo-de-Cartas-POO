@@ -9,6 +9,7 @@ public class Jogador
         Nome = nome;
         Energia = 10;
         Vidas = 30;
+        Deck = new List<Carta>();
     }
 
     public void ConsumirEnergia(Carta carta) {
