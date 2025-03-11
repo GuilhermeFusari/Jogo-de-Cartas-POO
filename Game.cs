@@ -104,12 +104,22 @@ public class Game
         {
             Console.WriteLine($"{i}: {usuario.Deck[i].Nome} - Energia: {usuario.Deck[i].Energia}");
         }
-        
+
+        Console.WriteLine($"Cartas disponíveis: {usuario.Deck.Count}");
+
         int escolha;
-        while (!int.TryParse(Console.ReadLine(), out escolha) || escolha < 0 || escolha >= usuario.Deck.Count)
+        while (true)
         {
             Console.WriteLine("Escolha uma carta válida, digitando o número correspondente:");
+
+            string entrada = Console.ReadLine() ?? "";
+            Console.WriteLine($"Entrada recebida: {entrada}");
+
+            if (int.TryParse(entrada, out escolha) && escolha >= 0 && escolha < usuario.Deck.Count)
+                break;
         }
+
+
 
         Carta cartaEscolhida = usuario.SelecionarCarta(escolha);
         cartaEscolhida.Usar(usuario, computador);
